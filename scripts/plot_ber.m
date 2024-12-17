@@ -22,11 +22,11 @@ colors = [0.0000 0.0000 0.0000;
           0.3010 0.7450 0.9330;
           0.6350 0.0780 0.1840];
 
-savefig = 1;
+savefig = 0;
 addpath('./functions/');
 root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\tcc\images\'];
 
-precoder_type = 'MF';
+precoder_type = 'ZF';
 amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'};
 A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
 

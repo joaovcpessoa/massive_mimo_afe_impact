@@ -1,3 +1,7 @@
+% ####################################################################### %
+%% LIMPEZA
+% ####################################################################### %
+
 clear;
 close all;
 clc;
@@ -37,7 +41,19 @@ BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC);
 
 for mc_idx = 1:N_MC
     
-    H = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+    % Canal de Rayleigh
+    % H = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+
+    % Canal de Rician Fading
+    theta = -pi/2 + pi * rand(K, 1);
+    A_LOS = exp(1i * 2 * pi * (0:M-1)' * 0.5 * repmat(sin(theta), M, 1));
+    H_LOS = sqrt(K_f / (1 + K_f)) * A_LOS;
+    W = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+    R = eye(M);
+    H_NLOS = sqrtm(R) * W;
+    H = H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
+
+    %
 
     bit_array = randi([0, 1], B * N_BLK, K);
     s = qammod(bit_array, M_QAM, 'InputType', 'bit');

@@ -80,4 +80,4 @@ for snr_idx = 1:N_SNR
     end
 end
 
-save('ber_zf.mat','BER','y','SNR', 'N_AMP', 'N_A0');
+save('ber_mf.mat','BER','y','SNR', 'N_AMP', 'N_A0');

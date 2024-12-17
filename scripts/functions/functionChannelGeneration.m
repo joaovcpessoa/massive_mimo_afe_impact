@@ -1,4 +1,4 @@
-function [ H,HMean] = channel_generation( R,HMeanWithoutPhase,M,nbrOfRealizations,K)
+function [ H,HMean] = functionChannelGeneration( R,HMeanWithoutPhase,M,nbrOfRealizations,K)
  
 H=zeros(M,nbrOfRealizations,K); 
 W = (randn(M,nbrOfRealizations,K)+1i*randn(M,nbrOfRealizations,K));

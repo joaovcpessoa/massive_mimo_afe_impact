@@ -19,16 +19,29 @@ K = 4;
 % Canal de Rayleigh
 % H = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
 
-% Canal Rician
+% Canal Rician fading (ULA)
+f = 1e9;
+c = 3e8;
 K_f = 10;
-H_LOS = ones(M, K);
-H_NLOS = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-H = sqrt(K_f / (1 + K_f)) * H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
+
+lambda = c / f;
+d = lambda / 2;
+theta_LOS = -pi/2 + pi*rand(K, 1);
+
+A_LOS = exp(1i * 2 * pi * (0:M-1)' * 0.5 * repmat(sin(theta_LOS), M, 1));
+
+H_LOS = sqrt(K_f / (1 + K_f)) * A_LOS;
+
+W = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+R = eye(M);
+H_NLOS = sqrtm(R) * W;
+
+H = H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
 
 B = 4;
 M_QAM = 2^B;
 
-SNR = -10:50;
+SNR = -10:30;
 N_SNR = length(SNR);
 snr = 10.^(SNR/10);
 
@@ -37,7 +50,7 @@ N_AMP = 4;
 
 A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
 
-precoder_type = 'MF';
+precoder_type = 'ZF';
 amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'};
 
 BER = zeros(K, N_SNR, N_AMP, N_A0);
@@ -80,4 +93,4 @@ for snr_idx = 1:N_SNR
     end
 end
 
-save('ber_mf.mat','BER','y','SNR', 'N_AMP', 'N_A0');
+save('ber_zf.mat','BER','y','SNR', 'N_AMP', 'N_A0');
