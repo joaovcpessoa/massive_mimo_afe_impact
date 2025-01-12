@@ -3,10 +3,17 @@ close all;
 clc;
 
 % ####################################################################### %
-%% PARÂMETROS DE PLOTAGEM
+%% CAMINHOS
 % ####################################################################### %
 
+addpath('./functions/');
 load('ber_zf.mat');
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
+savefig = 1;
+
+% ####################################################################### %
+%% PARÂMETROS DE PLOTAGEM
+% ####################################################################### %
 
 linewidth  = 2;
 fontname   = 'Times New Roman';
@@ -22,18 +29,11 @@ colors = [0.0000 0.0000 0.0000;
           0.3010 0.7450 0.9330;
           0.6350 0.0780 0.1840];
 
-savefig = 0;
-addpath('./functions/');
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\tcc\images\'];
-
-precoder_type = 'ZF';
-amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'};
-A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
-
 % ####################################################################### %
 %% PLOT
 % ####################################################################### %
 
+% BER
 for amp_idx = 1:N_AMP
     figure;
     set(gcf, 'position', [0 0 800 600]);
@@ -52,11 +52,21 @@ for amp_idx = 1:N_AMP
     
     set(gca, 'FontName', fontname, 'FontSize', fontsize);
 
-    graph_name = sprintf('BER_%s_%s', precoder_type, amplifiers_type{amp_idx});
+    graph_name = sprintf('BER_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
     
-    % if savefig == 1
-    %     saveas(gcf,[root_save graph_name],'fig');
-    %     saveas(gcf,[root_save graph_name],'png');
-    %     saveas(gcf,[root_save graph_name],'epsc2');
-    % end
+    if savefig == 1
+        saveas(gcf,[root_save graph_name],'fig');
+        saveas(gcf,[root_save graph_name],'png');
+        saveas(gcf,[root_save graph_name],'epsc2');
+    end
 end
+
+% s_received_normalized
+% 
+% % CONSTELAÇÃO: Sinal decodificado (com normalização)
+% figure;
+% for users_idx = 1:K      
+%     plot(real(s_received_normalized), imag(s_received_normalized), '.', 'MarkerSize', markersize, 'Color', colors(users_idx,:));
+%     xlabel('Re', 'FontName', fontname, 'FontSize', fontsize);
+%     ylabel('Im', 'FontName', fontname, 'FontSize', fontsize);
+% end

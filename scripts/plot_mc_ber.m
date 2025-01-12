@@ -1,12 +1,23 @@
+% ####################################################################### %
+%% LIMPEZA
+% ####################################################################### %
+
 clear;
 close all;
 clc;
 
 % ####################################################################### %
-%% PARÂMETROS DE PLOTAGEM
+%% CAMINHOS
 % ####################################################################### %
 
-load('ber_mc_mf.mat');
+addpath('./functions/');
+load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\ber_mc_zf.mat');
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
+savefig = 0;
+
+% ####################################################################### %
+%% PARÂMETROS DE PLOTAGEM
+% ####################################################################### %
 
 linewidth  = 2;
 fontname   = 'Times New Roman';
@@ -22,17 +33,14 @@ colors = [0.0000 0.0000 0.0000;
           0.3010 0.7450 0.9330;
           0.6350 0.0780 0.1840];
 
-savefig = 1;
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\tcc\images\'];
-
-% BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC);
-BER_per_user = mean(BER,1);
-avg_BER_per_user = mean(BER_per_user,5);
-disp(size(avg_BER_per_user));
-
 % ####################################################################### %
 %% PLOT
 % ####################################################################### %
+
+% BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
+BER_per_user = mean(BER,1);
+avg_H_BER = mean(BER_per_user,5);
+avg_BER_per_user = mean(avg_H_BER,6);
 
 for amp_idx = 1:N_AMP
     figure;

@@ -12,31 +12,10 @@ clc;
 
 addpath('./functions/');
 
-N_BLK = 10000;
+N_BLK = 1000;
 
-M = 100;
-K = 4;
-% Canal de Rayleigh
-% H = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-
-% Canal Rician fading (ULA)
-f = 1e9;
-c = 3e8;
-K_f = 10;
-
-lambda = c / f;
-d = lambda / 2;
-theta_LOS = -pi/2 + pi*rand(K, 1);
-
-A_LOS = exp(1i * 2 * pi * (0:M-1)' * 0.5 * repmat(sin(theta_LOS), M, 1));
-
-H_LOS = sqrt(K_f / (1 + K_f)) * A_LOS;
-
-W = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-R = eye(M);
-H_NLOS = sqrtm(R) * W;
-
-H = H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
+M = 64;
+K = 16;
 
 B = 4;
 M_QAM = 2^B;
@@ -55,6 +34,25 @@ amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'};
 
 BER = zeros(K, N_SNR, N_AMP, N_A0);
 
+% Canal Rician fading (ULA)
+c = 3e8;
+f = 1e9;
+K_f = 10;                  % dB
+K_f_linear = 10.^(K_f/10); % W
+
+lambda = c / f;
+d = lambda / 2;
+theta_LOS = -pi/2 + pi*rand(K, 1);
+
+A_LOS = exp(1i * 2 * pi * (0:M-1)' * 0.5 .* repmat(sin(theta_LOS'), M, 1));
+H_LOS = sqrt(K_f / (1 + K_f)) * A_LOS;
+
+W = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+R = eye(M);
+H_NLOS = sqrtm(R) * W;
+
+H = H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
+
 % ####################################################################### %
 %% PARAMETROS DO SINAL E DO RUÍDO 
 % ####################################################################### %
@@ -71,7 +69,7 @@ Pv = vecnorm(v,2,2).^2/N_BLK;
 v_normalized = v./sqrt(Pv);
 
 % ####################################################################### %
-%% TRANSMISSÃO E RECEPÇÃO
+%% CALCULO DA BER
 % ####################################################################### %
 
 for snr_idx = 1:N_SNR
@@ -86,6 +84,9 @@ for snr_idx = 1:N_SNR
             for users_idx = 1:K
                 s_received = y(users_idx, :).';
                 Ps_received = norm(s_received)^2/N_BLK;
+
+                s_received_normalized = sqrt(Ps(users_idx) / Ps_received) * s_received; % Sinal decodificado (com normalização)
+
                 bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx)/Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
                 [~, BER(users_idx, snr_idx, amp_idx, a_idx)] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
             end
@@ -93,4 +94,4 @@ for snr_idx = 1:N_SNR
     end
 end
 
-save('ber_zf.mat','BER','y','SNR', 'N_AMP', 'N_A0');
+save('ber_zf.mat', 'M', 'K', 'y','SNR', 'N_AMP', 'N_A0', 'BER', 's_received_normalized');
