@@ -1,3 +1,7 @@
+% ####################################################################### %
+%% LIMPEZA
+% ####################################################################### %
+
 clear;
 close all;
 clc;
@@ -7,8 +11,8 @@ clc;
 % ####################################################################### %
 
 addpath('./functions/');
-load('ber_zf.mat');
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\'];
+load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\ber_mc_mmse_64_32.mat');
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
 savefig = 1;
 
 % ####################################################################### %
@@ -33,26 +37,38 @@ colors = [0.0000 0.0000 0.0000;
 %% PLOT
 % ####################################################################### %
 
-% BER
-for amp_idx = 1:N_AMP
+% BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
+BER_per_user = mean(BER,1);
+avg_H_BER = mean(BER_per_user,5);
+avg_BER_per_user = mean(avg_H_BER,6);
+
+% Gráfico para amp_idx = 2, 3, 4, incluindo também amp_idx = 1
+for amp_idx = 2:4
     figure;
     set(gcf, 'position', [0 0 800 600]);
     
+    % Adicionar o gráfico de amp_idx = 1
     for a_idx = 1:N_A0
-        semilogy(SNR, mean(BER(:,:,amp_idx,a_idx),1), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(a_idx+1,:));
+        semilogy(SNR, avg_BER_per_user(:, :, 1, a_idx), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(a_idx+1,:));
+        hold on;
+    end
+
+    % Adicionar o gráfico do amp_idx atual (2, 3 ou 4)
+    for a_idx = 1:N_A0
+        semilogy(SNR, avg_BER_per_user(:, :, amp_idx, a_idx), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(a_idx+1,:));
         hold on;
     end
 
     xlabel('SNR (dB)', 'FontName', fontname, 'FontSize', fontsize);
     ylabel('BER', 'FontName', fontname, 'FontSize', fontsize);
-    title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
+    %title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
     
-    legend(arrayfun(@(a) sprintf('A=%.1f', a), A0, 'UniformOutput', false), 'Location', 'northeast', 'FontSize', fontsize);
+    legend(arrayfun(@(a) sprintf('A=%.1f', a), A0, 'UniformOutput', false), 'Location', 'southwest', 'FontSize', fontsize);
     legend box off;
     
     set(gca, 'FontName', fontname, 'FontSize', fontsize);
 
-    graph_name = sprintf('BER_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
+    graph_name = sprintf('BER_MC_%s_%s', precoder_type, amplifiers_type{amp_idx});
     
     if savefig == 1
         saveas(gcf,[root_save graph_name],'fig');
@@ -60,13 +76,3 @@ for amp_idx = 1:N_AMP
         saveas(gcf,[root_save graph_name],'epsc2');
     end
 end
-
-% s_received_normalized
-% 
-% % CONSTELAÇÃO: Sinal decodificado (com normalização)
-% figure;
-% for users_idx = 1:K      
-%     plot(real(s_received_normalized), imag(s_received_normalized), '.', 'MarkerSize', markersize, 'Color', colors(users_idx,:));
-%     xlabel('Re', 'FontName', fontname, 'FontSize', fontsize);
-%     ylabel('Im', 'FontName', fontname, 'FontSize', fontsize);
-% end

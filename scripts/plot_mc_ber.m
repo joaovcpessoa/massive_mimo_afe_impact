@@ -11,7 +11,7 @@ clc;
 % ####################################################################### %
 
 addpath('./functions/');
-load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\ber_mc_zf.mat');
+load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\ber_mc_mf_128_32.mat');
 root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
 savefig = 0;
 
@@ -39,8 +39,11 @@ colors = [0.0000 0.0000 0.0000;
 
 % BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 BER_per_user = mean(BER,1);
+disp(size(BER_per_user))
 avg_H_BER = mean(BER_per_user,5);
+disp(size(avg_H_BER))
 avg_BER_per_user = mean(avg_H_BER,6);
+disp(size(avg_BER_per_user))
 
 for amp_idx = 1:N_AMP
     figure;

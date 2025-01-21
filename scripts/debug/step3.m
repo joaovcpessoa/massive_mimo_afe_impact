@@ -12,7 +12,7 @@ clc;
 
 addpath('./functions/');
 
-precoder_type = 'ZF'; % Tipo de precodificador
+precoder_type = 'MF'; % Tipo de precodificador
 
 N_BLK = 1000; % Número de blocos
 N_MC1 = 10;   % Posições de usuário
@@ -107,4 +107,4 @@ for mc_idx1 = 1:N_MC1 % user selection
     end
 end
 
-save('ber_mc_zf.mat', 'M', 'K', 'y', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');
+save('ber_mc_mf.mat', 'M', 'K', 'y', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');
