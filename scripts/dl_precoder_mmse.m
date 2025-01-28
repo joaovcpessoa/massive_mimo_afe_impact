@@ -12,18 +12,10 @@ clc;
 
 addpath('./functions/');
 
-N_BLK = 10000;
+N_BLK = 1000;
 
 M = 100;
 K = 4;
-% Canal de Rayleigh
-% H = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-
-% Canal Rician
-K_f = 10;
-H_LOS = ones(M, K);
-H_NLOS = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-H = sqrt(K_f / (1 + K_f)) * H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
 
 B = 4;
 M_QAM = 2^B;
@@ -39,6 +31,11 @@ A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
 
 precoder_type = 'MMSE';
 amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'};
+
+K_f = 10;
+H_LOS = ones(M, K);
+H_NLOS = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
+H = sqrt(K_f / (1 + K_f)) * H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
 
 BER = zeros(K, N_SNR, N_AMP, N_A0);
 
@@ -73,6 +70,9 @@ for snr_idx = 1:N_SNR
             for users_idx = 1:K
                 s_received = y(users_idx, :).';
                 Ps_received = norm(s_received)^2/N_BLK;
+
+                s_received_normalized = sqrt(Ps(users_idx) / Ps_received) * s_received;
+
                 bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx)/Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
                 [~, BER(users_idx, snr_idx, amp_idx, a_idx)] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
             end
@@ -80,4 +80,4 @@ for snr_idx = 1:N_SNR
     end
 end
 
-save('ber_mmse.mat','BER','y','SNR', 'N_AMP', 'N_A0');
+save('ber_mmse.mat', 'N_BLK', 'BER', 'M', 'K', 'Ps', 'y', 'SNR', 'N_AMP', 'N_A0', 's_received_normalized');

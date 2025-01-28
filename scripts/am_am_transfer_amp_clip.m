@@ -9,6 +9,9 @@ clc;
 %% PARÂMETROS PRINCIPAIS
 % ####################################################################### %
 
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\'];
+savefig = 1;
+
 A0 = [1.0, 2.0];      % Parâmetros de amplificação
 p_values = [1, 2, 3]; % Valores do parâmetro de não linearidade (saturação)
 
@@ -58,3 +61,11 @@ xlabel('Amplitude In');
 ylabel('Amplitude Out');
 legend('Location', 'southeast');
 legend box off;
+
+graph_name = sprintf('amp_clip');
+    
+if savefig == 1
+   saveas(gcf,[root_save graph_name],'fig');
+   saveas(gcf,[root_save graph_name],'png');
+   saveas(gcf,[root_save graph_name],'epsc2');
+end
