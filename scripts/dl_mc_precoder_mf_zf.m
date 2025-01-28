@@ -12,13 +12,13 @@ clc;
 
 addpath('./functions/');
 
-precoder_type = 'MF';
+precoder_type = 'ZF';
 
 N_BLK = 1000;
 N_MC1 = 10;
 N_MC2 = 10;
 
-M = 64;
+M = 128;
 K = 32;
 
 B = 4;
@@ -107,4 +107,4 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-save('ber_mc_mf.mat', 'M', 'K', 'y', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');
+save('ber_mc_zf.mat', 'M', 'K', 'y', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');

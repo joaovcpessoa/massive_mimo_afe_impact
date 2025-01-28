@@ -18,8 +18,8 @@ N_BLK = 1000; % Número de blocos
 N_MC1 = 10;   % Posições de usuário
 N_MC2 = 10;   % SSF
 
-M = 64; % Número de antenas
-K = 16; % Número de usuários
+M = 128; % Número de antenas
+K = 32; % Número de usuários
 
 B = 4;       % Número de bits por símbolo (modulação)
 M_QAM = 2^B; % Número de pontos da constelação QAM
