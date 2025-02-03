@@ -9,7 +9,7 @@ clc;
 %% PARÂMETROS PRINCIPAIS
 % ####################################################################### %
 
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\'];
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\amplitude_io\'];
 savefig = 1;
 
 A0 = [1.0, 2.0];      % Parâmetros de amplificação

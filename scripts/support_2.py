@@ -18,7 +18,7 @@ def move_file(file_path, base_directory, categories):
     return False
 
 def process_files(directory, suffix):
-    categories = {"CLIP": "CLIP", "SS": "SS", "TWT": "TWT"}
+    categories = {"CLIP": "clip", "SS": "ss", "TWT": "twt"}
     script_name = os.path.basename(__file__)
 
     for file_name in os.listdir(directory):
@@ -32,8 +32,8 @@ def process_files(directory, suffix):
             print(f"File '{os.path.basename(new_path)}' does not fit any category.")
 
 if __name__ == "__main__":
-    target_directory = r"C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images"
-    suffix = "M64_K32"
+    target_directory = r"C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\ber"
+    suffix = "M128_K64"
 
     if os.path.isdir(target_directory):
         process_files(target_directory, suffix)

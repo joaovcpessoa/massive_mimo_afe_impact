@@ -93,6 +93,35 @@ Isso garante que a potência total (soma das variâncias das partes real e imagi
 
 </details>
 
+## Imagens:
+
+### ber:
+
+As imagens estão codificadas conforme explicado abaixo: 
+
+Padrão: %s_%s_%s_%d_%d</br>
+Exemplo: MC_ZF_TWT_128_32
+
+- O primeiro grupo informa a existência de Monte Carlo
+- O segundo grupo informa o precodificador
+- O terceiro grupo informa o modelo de não linearidade do amplificador
+- O quarto grupo é o número de antenas na BS
+- O quinto grupo é o número de terminais UEs
+
+### constellation:
+
+As imagens estão codificadas conforme explicado abaixo: 
+
+Padrão: %s_%s_%d_%d_%d_%d</br>
+Exemplo: MF_CLIP_64_16_30_100
+
+- O primeiro grupo informa o precodificador
+- O segundo grupo informa o modelo de não linearidade do amplificador
+- O terceiro grupo é o número de antenas na BS
+- O quarto grupo é o número de terminais UEs
+- O quinto grupo é o SNR
+- O sexto grupo é a amplitude
+
 [🚧EM CONSTRUÇÃO🚧]
 
 ### Referências

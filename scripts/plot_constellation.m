@@ -10,7 +10,8 @@ clc;
 %% CAMINHOS
 % ####################################################################### %
 
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\'];
+addpath('./functions/');
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\constellation\'];
 savefig = 1;
 
 % ####################################################################### %
@@ -43,27 +44,26 @@ colors = [0.0000 0.0000 0.0000;  % Preto
 %% PLOTAGEM
 % ####################################################################### %
 
-precoder_type = 'MF';
-amplifiers_type = {'SS'};
-A0 = [1.0];
+load('channel.mat', 'H');
+
+precoder_type = 'MMSE';
+amplifiers_type = 'CLIP';
 
 N_BLK = 1000;
+A0 = 100;
+
 M = 64;
 K = 16;
+K_f = 10;
+
 B = 4;
 M_QAM = 2^B;
+
 SNR = -10:30;
 N_SNR = length(SNR);
 snr = 10.^(SNR/10);
-N_A0 = 1;
-N_AMP = 1;
 
-K_f = 10;
-H_LOS = ones(M, K);
-H_NLOS = (randn(M, K) + 1i * randn(M, K)) / sqrt(2);
-H = sqrt(K_f / (1 + K_f)) * H_LOS + sqrt(1 / (1 + K_f)) * H_NLOS;
-
-BER = zeros(K, N_SNR, N_AMP, N_A0);
+BER = zeros(K, N_SNR);
 
 % ####################################################################### %
 %% PARAMETROS DO SINAL E DO RUÍDO 
@@ -84,25 +84,19 @@ v_normalized = v ./ sqrt(Pv);
 %% TRANSMISSÃO E RECEPÇÃO
 % ####################################################################### %
 
-for snr_idx = 1:N_SNR
-    for a_idx = 1:N_A0
-        for amp_idx = 1:N_AMP
-            a0 = A0(a_idx);
-            current_amp_type = amplifiers_type{amp_idx};
+for snr_idx = 41
+    current_amp_type = amplifiers_type;
+    y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, A0) + v_normalized; % MMSE
+    % y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, A0) + v_normalized;              % MF & ZF
+    bit_received = zeros(B * N_BLK, K);
+    s_received_normalized = zeros(N_BLK, K);
+    for users_idx = 1:K
+        s_received = y(users_idx, :).';
+        Ps_received = norm(s_received)^2 / N_BLK;
+        s_received_normalized(:, users_idx) = sqrt(Ps(users_idx) / Ps_received) * s_received;
 
-            y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
-            bit_received = zeros(B * N_BLK, K);
-
-            for users_idx = 1:K
-                s_received = y(users_idx, :).';
-                Ps_received = norm(s_received)^2 / N_BLK;
-
-                s_received_normalized = sqrt(Ps(users_idx) / Ps_received) * s_received;
-
-                bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
-                [~, BER(users_idx, snr_idx, amp_idx, a_idx)] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
-            end
-        end
+        bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
+        [~, BER(users_idx, snr_idx)] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
     end
 end
 
@@ -111,17 +105,17 @@ end
 % ####################################################################### %
 
 figure;
-for users_idx = 1:K
-    scatter(real(s_received_normalized), imag(s_received_normalized), markersize, 'MarkerEdgeColor', colors(users_idx, :));
+for users_idx = 1:K   
+    plot(real(s_received_normalized), imag(s_received_normalized),'.','MarkerSize', markersize,'Color',colors(2, :));
     hold on;
 end
 xlabel('Parte Real', 'FontName', fontname, 'FontSize', fontsize);
 ylabel('Parte Imaginária', 'FontName', fontname, 'FontSize', fontsize);
-%title('Constelação dos Símbolos Recebidos', 'FontName', fontname, 'FontSize', fontsize);
+title('Constelação dos Símbolos Recebidos', 'FontName', fontname, 'FontSize', fontsize);
 grid on;
 hold off;
 
-graph_name = sprintf('constellation_plot_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
+graph_name = sprintf('%s_%s_%d_%d_30_%d', precoder_type, amplifiers_type, M, K, A0);
 
 if savefig == 1
     saveas(gcf,[root_save graph_name],'fig');

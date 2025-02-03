@@ -11,9 +11,9 @@ clc;
 % ####################################################################### %
 
 addpath('./functions/');
-load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\ber_mc_zf_64_32.mat');
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
-savefig = 1;
+load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\data\ber_mc_zf_128_32.mat');
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\ber\'];
+savefig = 0;
 
 % ####################################################################### %
 %% PARÂMETROS DE PLOTAGEM
@@ -42,6 +42,9 @@ BER_per_user = mean(BER,1);
 avg_H_BER = mean(BER_per_user,5);
 avg_BER_per_user = mean(avg_H_BER,6);
 
+disp(size(BER_per_user));
+disp(size(avg_H_BER));
+disp(size(avg_BER_per_user));
 
 % Gráfico para amp_idx = 2, 3, 4, incluindo também amp_idx = 1
 for amp_idx = 2:4
