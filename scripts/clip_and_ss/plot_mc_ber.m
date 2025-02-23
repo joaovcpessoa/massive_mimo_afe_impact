@@ -11,9 +11,9 @@ clc;
 % ####################################################################### %
 
 addpath('./functions/');
-load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\data\ber_mc_zf_128_32.mat');
+load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\clip_and_ss\data\ber_mc_zf_256_256.mat');
 root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\ber\'];
-savefig = 0;
+savefig = 1;
 
 % ####################################################################### %
 %% PARÂMETROS DE PLOTAGEM
@@ -71,11 +71,11 @@ for amp_idx = 2:4
     
     set(gca, 'FontName', fontname, 'FontSize', fontsize);
 
-    graph_name = sprintf('BER_MC_%s_%s', precoder_type, amplifiers_type{amp_idx});
+    graph_name = sprintf('MC_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
     
     if savefig == 1
-        saveas(gcf,[root_save graph_name],'fig');
-        saveas(gcf,[root_save graph_name],'png');
-        saveas(gcf,[root_save graph_name],'epsc2');
+        % saveas(gcf,[root_save graph_name],'fig');
+         saveas(gcf,[root_save graph_name],'png');
+        %saveas(gcf,[root_save graph_name],'epsc2');
     end
 end

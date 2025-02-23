@@ -6,44 +6,43 @@ clc;
 %% PARÂMETROS PRINCIPAIS
 % ####################################################################### %
 
-addpath('./functions/');
+addpath('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\functions');
 
-precoder_type = 'MMSE'; % Tipo de precodificador
+precoder_type = 'MMSE';
+amplifiers_type = {'IDEAL', 'CLIP', 'SS'};
+A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
+N_A0 = 5;
+N_AMP = 3;
 
-N_BLK = 1000; % Número de blocos
-N_MC1 = 10;   % Posições de usuário
-N_MC2 = 10;   % SSF
+N_BLK = 1000;
+N_MC1 = 10;
+N_MC2 = 10;
 
-M = 256; % Número de antenas
-K = 64; % Número de usuários
+M = 256;
+K = 64;
 
-B = 4;       % Número de bits por símbolo (modulação)
-M_QAM = 2^B; % Número de pontos da constelação QAM
+B = 4;
+M_QAM = 2^B;
 
-SNR = -10:1:30;      % Faixa de SNR em dB
-N_SNR = length(SNR); % Número de valores de SNR
-snr = 10.^(SNR/10);  % Conversão SNR para valor linear
+SNR = -10:1:30;
+N_SNR = length(SNR);
+snr = 10.^(SNR/10);
 
-A0 = [0.5, 1.0, 1.5, 2.0, 2.5];                   % Parâmetros dos amplificadores
-amplifiers_type = {'IDEAL', 'CLIP', 'TWT', 'SS'}; % Tipos de amplificadores
-N_A0 = 5;                                         % Número de parâmetros A0
-N_AMP = 4;                                        % Número de amplificadores
+radial = 1000;
+c = 3e8;
+f = 1e9;
+K_f_dB = 10;
+K_f = 10^(K_f_dB/10);
 
-radial = 1000;        % Raio da célula em metros
-c = 3e8;              % Velocidade da luz (m/s)
-f = 1e9;              % Frequência de operação (Hz)
-K_f_dB = 10;          % Fator de Rician em dB
-K_f = 10^(K_f_dB/10); % Fator de Rician em valor linear
-
-lambda = c / f; % Comprimento de onda
-d = lambda / 2; % espaçamento entre antenas
-R = eye(M);     % Matriz identidade de dimensão
+lambda = c / f;
+d = lambda / 2;
+R = eye(M);
 
 % ####################################################################### %
 %% ALOCANDO MEMÓRIA
 % ####################################################################### %
 
-y = zeros(K, N_BLK, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
+% y = zeros(K, N_BLK, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 x_user = zeros(K, N_MC1);
 y_user = zeros(K, N_MC1);
@@ -84,16 +83,15 @@ for mc_idx1 = 1:N_MC1 % user selection
             for a_idx = 1:N_A0
                 for amp_idx = 1:N_AMP
                     a0 = A0(a_idx);
-
-                    
-
                     current_amp_type = amplifiers_type{amp_idx};
     
-                    y(:,:,snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;
+                    % y(:,:,snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;
+                    y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;
                     bit_received = zeros(B * N_BLK, K);
     
                     for users_idx = 1:K
-                        s_received = y(users_idx, :, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2).';
+                        % s_received = y(users_idx, :, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2).';
+                        s_received = y(users_idx, :).';
                         Ps_received = norm(s_received)^2 / N_BLK;
                         bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
     
@@ -106,4 +104,6 @@ for mc_idx1 = 1:N_MC1 % user selection
     end
 end
 
-save('ber_mc_mmse.mat', 'M', 'K', 'y', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');
+
+filename = sprintf('ber_mc_mmse_%d_%d.mat', M, K);
+save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type');

@@ -17,8 +17,8 @@ N_BLK = 1000;
 N_MC1 = 10;
 N_MC2 = 10;
 
-M = 128;
-K = 128;
+M = 256;
+K = 256;
 
 B = 4;
 M_QAM = 2^B;
@@ -47,7 +47,7 @@ R = eye(M);
 
 x_user = zeros(K, N_MC1);
 y_user = zeros(K, N_MC1);
-y = zeros(K, N_BLK, N_SNR, N_AMP, N_params, N_MC1, N_MC2);
+% y = zeros(K, N_BLK, N_SNR, N_AMP, N_params, N_MC1, N_MC2);
 BER = zeros(K, N_SNR, N_AMP, N_params, N_MC1, N_MC2);
 
 %% TX/RX MONTE CARLO
@@ -90,11 +90,13 @@ for mc_idx1 = 1:N_MC1
                     kappa_phi = params{param_idx}.kappa_phi;
                     current_amp_type = amplifiers_type{amp_idx};
     
-                    y(:,:,snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
+                    % y(:,:,snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
+                    y = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
                     bit_received = zeros(B * N_BLK, K);              
 
                     for users_idx = 1:K
-                        s_received = y(users_idx, :, snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2).';
+                        % s_received = y(users_idx, :, snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2).';
+                        s_received = y(users_idx, :).';
                         Ps_received = norm(s_received)^2 / N_BLK;
                         bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
     
@@ -107,4 +109,5 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-save('ber_mc_mmse_128_128.mat', 'M', 'K', 'SNR', 'BER', 'N_params', 'N_AMP', 'precoder_type', 'amplifiers_type', 'x_user', 'y_user');
+filename = sprintf('ber_mc_mmse_%d_%d.mat', M, K);
+save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'precoder_type', 'amplifiers_type');

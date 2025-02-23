@@ -55,9 +55,9 @@ for amp_idx = 1:N_AMP
     graph_name = sprintf('BER_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
     
     if savefig == 1
-        saveas(gcf,[root_save graph_name],'fig');
+        %saveas(gcf,[root_save graph_name],'fig');
         saveas(gcf,[root_save graph_name],'png');
-        saveas(gcf,[root_save graph_name],'epsc2');
+        %saveas(gcf,[root_save graph_name],'epsc2');
     end
 end
 
