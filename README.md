@@ -5,13 +5,12 @@ Como o foco principal é avaliar o impacto dos modelos de não linearidade basea
 
 ### Scripts:
 
-* [amplitude_clip_io.m](scripts) - Análise da Amplitude de Entrada vs. Amplitude Saída do modelo não linear baseado no amplificador operacional de corte ideal.
-* [amplitude_ss_io.m](scripts) - Análise da Amplitude de Entrada vs. Amplitude Saída do modelo não linear baseado no amplificador operacional de estado sólido.
-* [amplitude_twt_io.m](scripts) - Análise da Amplitude de Entrada vs. Amplitude Saída e Amplitude de Entrada vs. Fase de Saída do modelo não linear baseado no amplificador operacional de tubo de onda tunelada.
+* [amplitude_analisys.m](scripts) - Análise da amplitude e fase dos modelos não lineares baseados nos amplificadores operacionais: corte ideal, estado sólido e tubo de onda tunelada.
 * [ul_clip_ss.m](scripts) - Análise da BER vs. SNR em Uplink utilizando modulação 16-QAM e modelagem de não linearidade baseada em 2 tipos amplificadores operacionais: Corte ideal e Estado sólido. 
 * [ul_twt.m](scripts) -  Análise da BER vs. SNR em Uplink utilizando modulação 16-QAM e modelagem de não linearidade baseada no amplificador operacional de tubo de onda tunelada.
 * [dl_clip_ss.m](scripts) - Análise da BER vs. SNR em Downlink utilizando modulação 16-QAM e modelagem de não linearidade baseada em 2 tipos amplificadores operacionais: Corte ideal e Estado sólido. 
 * [dl_twt.m](scripts) -  Análise da BER vs. SNR em Downlink utilizando modulação 16-QAM e modelagem de não linearidade baseada no amplificador operacional de tubo de onda tunelada.
+* [plot_amplitude_phase.m](scripts) - Exibir os gráficos para as análises de amplitude e fase dos amplificadores operacionais.
 * [plot_ber_clip_ss.m](scripts) - Exibir os gráficos para as análises de BER das modelagens não lineares baseadas nos amplificadores operacionais de corte ideal e estado sólido.
 * [plot_ber_twt.m](scripts) - Exibir os gráficos para as análises de BER da modelagem não linear baseada no amplificador operacional de tubo de onda tunelada.
 * [plot_constellation.m](scripts) - Exibir os gráficos das constelações.
