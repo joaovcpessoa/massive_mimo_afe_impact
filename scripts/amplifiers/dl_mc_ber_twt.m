@@ -5,13 +5,24 @@ clear;
 close all;
 clc;
 
+%% PATHS
+% ####################################################################### %
+
+current_dir = fileparts(mfilename('fullpath'));
+
+env_file = fullfile(current_dir, '..', '..', '.env');
+env_vars = load_env(env_file);
+
+simulation = env_vars.SIMULATION_SAVE_PATH;
+functions = env_vars.FUNCTIONS_PATH;
+
+addpath(functions);
+
 %% MAIN PARAMETERS
 % ####################################################################### %
 
-addpath('./functions/');
-
-precoder_type = 'MMSE';
-amplifiers_type = {'IDEAL', 'TWT'};
+precoder_type = 'MF';
+amplifiers_type = {'IDEAL', 'TWT'}; 
 
 N_BLK = 1000;
 N_MC1 = 10;
@@ -33,7 +44,7 @@ params = {
     struct('chi_A', 2.1587, 'kappa_A', 1.1517, 'chi_phi', 4.0033, 'kappa_phi', 9.1040)
 };
 N_params = length(params);
-N_AMP = 2;
+N_AMP = length(amplifiers_type);
 
 radial = 1000;
 c = 3e8;
@@ -90,8 +101,14 @@ for mc_idx1 = 1:N_MC1
                     kappa_phi = params{param_idx}.kappa_phi;
                     current_amp_type = amplifiers_type{amp_idx};
     
-                    % y(:,:,snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
-                    y = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
+                    % y(:,:,snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
+                    
+                    if strcmp(precoder_type, 'MMSE')
+                        y = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;    
+                    else
+                        y = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
+                    end
+                    
                     bit_received = zeros(B * N_BLK, K);              
 
                     for users_idx = 1:K
@@ -109,5 +126,5 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-filename = sprintf('ber_mc_mmse_%d_%d.mat', M, K);
+filename = sprintf('ber_mc_mf_%d_%d.mat', M, K);
 save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'precoder_type', 'amplifiers_type');

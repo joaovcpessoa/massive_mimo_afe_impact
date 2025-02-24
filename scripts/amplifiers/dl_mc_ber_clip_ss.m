@@ -5,35 +5,45 @@ clear;
 close all;
 clc;
 
+%% PATHS
+% ####################################################################### %
+
+current_dir = fileparts(mfilename('fullpath'));
+
+env_file = fullfile(current_dir, '..', '..', '.env');
+env_vars = load_env(env_file);
+
+simulation = env_vars.SIMULATION_SAVE_PATH;
+functions = env_vars.FUNCTIONS_PATH;
+
+addpath(functions);
+
 %% MAIN PARAMETERS
 % ####################################################################### %
 
-addpath('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\functions');
+precoder_type = 'MMSE';
+amplifiers_type = {'IDEAL', 'CLIP'};
+% amplifiers_type = {'IDEAL', 'CLIP', 'SS', 'TWT'};
 
-precoder_type = 'MF';
-amplifiers_type = {'IDEAL', 'TWT'}; 
+A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
+
+
+N_A0 = length(A0);  
+N_AMP = length(amplifiers_type); 
 
 N_BLK = 1000;
 N_MC1 = 10;
 N_MC2 = 10;
 
-M = 256;
-K = 256;
+M = 64;
+K = 16;
 
 B = 4;
 M_QAM = 2^B;
 
 SNR = -10:1:30;
 N_SNR = length(SNR);
-snr = 10.^(SNR/10);
-
-params = {
-    struct('chi_A', 1.6397, 'kappa_A', 0.0618, 'chi_phi', 0.2038, 'kappa_phi', 0.1332),
-    struct('chi_A', 1.9638, 'kappa_A', 0.9945, 'chi_phi', 2.5293, 'kappa_phi', 2.8168),
-    struct('chi_A', 2.1587, 'kappa_A', 1.1517, 'chi_phi', 4.0033, 'kappa_phi', 9.1040)
-};
-N_params = length(params);
-N_AMP = 2;
+snr = 10.^(SNR/10);                                      
 
 radial = 1000;
 c = 3e8;
@@ -45,12 +55,16 @@ lambda = c / f;
 d = lambda / 2;
 R = eye(M);
 
+%% MEMORY ALOCATION
+% ####################################################################### %
+
+% y = zeros(K, N_BLK, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
+BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 x_user = zeros(K, N_MC1);
 y_user = zeros(K, N_MC1);
-% y = zeros(K, N_BLK, N_SNR, N_AMP, N_params, N_MC1, N_MC2);
-BER = zeros(K, N_SNR, N_AMP, N_params, N_MC1, N_MC2);
 
-%% TX/RX MONTE CARLO
+% ####################################################################### %
+%% SIMULAÇÃO DE MONTE CARLO
 % ####################################################################### %
 
 for mc_idx1 = 1:N_MC1
@@ -82,26 +96,28 @@ for mc_idx1 = 1:N_MC1
         v_normalized = v ./ sqrt(Pv);
     
         for snr_idx = 1:N_SNR
-            for amp_idx = 1:N_AMP
-                for param_idx = 1:N_params
-                    chi_A = params{param_idx}.chi_A;
-                    kappa_A = params{param_idx}.kappa_A;
-                    chi_phi = params{param_idx}.chi_phi;
-                    kappa_phi = params{param_idx}.kappa_phi;
+            for a_idx = 1:N_A0
+                for amp_idx = 1:N_AMP
+                    a0 = A0(a_idx);
                     current_amp_type = amplifiers_type{amp_idx};
     
-                    % y(:,:,snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
-                    y = H.' * amplifierTWT(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, chi_A, kappa_A, chi_phi, kappa_phi) + v_normalized;
-                    bit_received = zeros(B * N_BLK, K);              
+                    % y(:,:,snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
+                    if strcmp(precoder_type, 'MMSE')
+                        y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;     
+                    else
+                        y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
+                    end
 
+                    bit_received = zeros(B * N_BLK, K);
+    
                     for users_idx = 1:K
-                        % s_received = y(users_idx, :, snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2).';
+                        % s_received = y(users_idx, :, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2).';
                         s_received = y(users_idx, :).';
                         Ps_received = norm(s_received)^2 / N_BLK;
                         bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
     
                         [~, bit_error] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
-                        BER(users_idx, snr_idx, amp_idx, param_idx, mc_idx1, mc_idx2) = bit_error;
+                        BER(users_idx, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = bit_error;
                     end
                 end
             end
@@ -109,5 +125,5 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-filename = sprintf('ber_mc_mf_%d_%d.mat', M, K);
-save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'precoder_type', 'amplifiers_type');
+filename = sprintf('ber_mc_zf_clip_%s_%d_%d.mat', precoder_type, M, K);
+save(fullfile(simulation, filename), 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type');

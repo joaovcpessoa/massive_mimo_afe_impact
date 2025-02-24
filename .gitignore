@@ -4,3 +4,4 @@
 *.eps
 *.mat
 *./data/
+*.env

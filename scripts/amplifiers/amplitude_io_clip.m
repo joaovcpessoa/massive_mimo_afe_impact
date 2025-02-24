@@ -25,7 +25,7 @@ colors = [0.0000 0.0000 0.0000;
 %% MAIN PARAMETERS
 % ####################################################################### %
 
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\'];
+root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\massive_mimo_afe_impact\images\'];
 savefig = 1;
 
 A0 = [1.0, 2.0];
@@ -74,8 +74,11 @@ legend box off;
 
 set(gca, 'FontName', fontname, 'FontSize', fontsize);
 
+%% SAVE IMAGE
+% ####################################################################### %
+
 graph_name = 'amplitude_io_clip';
-    
+
 if savefig == 1
    % saveas(gcf,[root_save graph_name],'fig');
    % saveas(gcf,[root_save graph_name],'png');

@@ -8,9 +8,20 @@ clc;
 %% PATHS
 % ####################################################################### %
 
-addpath('./functions/');
-load('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\twt\data\ber_mc_mf_64_16.mat');
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\ber\'];
+current_dir = fileparts(mfilename('fullpath'));
+
+env_file = fullfile(current_dir, '..', '..', '.env');
+env_vars = load_env(env_file);
+
+simulation = env_vars.SIMULATION_SAVE_PATH;
+plot = env_vars.PLOT_SAVE_PATH;
+functions = env_vars.FUNCTIONS_PATH;
+
+addpath(simulation);
+addpath(functions);
+
+load('ber_mc_zf_clip_64_16.mat');
+
 savefig = 1;
 
 %% PLOTTING PARAMETERS
@@ -33,41 +44,36 @@ colors = [0.0000 0.0000 0.0000;
 %% PLOT
 % ####################################################################### %
 
+% BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 BER_per_user = mean(BER,1);
 avg_H_BER = mean(BER_per_user,5);
 avg_BER_per_user = mean(avg_H_BER,6);
-
-N_params = 3;
 
 disp(size(BER_per_user));
 disp(size(avg_H_BER));
 disp(size(avg_BER_per_user));
 
-for amp_idx = 2
+% Gráfico para amp_idx = 2, 3, 4, incluindo também amp_idx = 1
+for amp_idx = 2:4
     figure;
     set(gcf, 'position', [0 0 800 600]);
-
+    
     semilogy(SNR, avg_BER_per_user(:, :, 1, 1), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(2,:));
     hold on;
 
-    for param_idx = 1:N_params   
-        semilogy(SNR, avg_BER_per_user(:, :, amp_idx, param_idx), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(param_idx+2,:));        
+    % Adicionar o gráfico do amp_idx atual (2, 3 ou 4)
+    for a_idx = 1:N_A0
+        semilogy(SNR, avg_BER_per_user(:, :, amp_idx, a_idx), 'LineWidth', linewidth, 'MarkerSize', markersize, 'Color', colors(a_idx+2,:));
     end
 
     xlabel('SNR (dB)', 'FontName', fontname, 'FontSize', fontsize);
     ylabel('BER', 'FontName', fontname, 'FontSize', fontsize);
-    % title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
+    %title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
+    
+    legend_text = {'Ideal', '$A = 0.5$', '$A = 1.0$', '$A = 1.5$', '$A = 2.0$', '$A = 2.5$'};
+    legend(legend_text , 'Location', 'southwest', 'FontSize', fontsize, 'fontname', fontname, 'Interpreter','latex');
 
-    % legend_text = {
-    %    'Ideal', ...
-    %    '$\chi_A = 1.6397$, $\kappa_A = 0.0618$, $\chi_\phi = 0.2038$, $\kappa_\phi = 0.1332$', ...
-    %    '$\chi_A = 1.9638$, $\kappa_A = 0.9945$, $\chi_\phi = 2.5293$, $\kappa_\phi = 2.8168$', ...
-    %    '$\chi_A = 2.1587$, $\kappa_A = 1.1517$, $\chi_\phi = 4.0033$, $\kappa_\phi = 9.1040$'
-    %};
-
-    legend_text = {'Ideal', 'Conjunto 1', 'Conjunto 2', 'Conjunto 3'}; 
-
-    legend(legend_text , 'Location', 'southeast', 'FontSize', fontsize, 'fontname', fontname, 'Interpreter','latex');
+    %legend(arrayfun(@(a) sprintf('A=%.1f', a), A0, 'UniformOutput', false), 'Location', 'northwest', 'FontSize', fontsize);
     legend box off;
     
     set(gca, 'FontName', fontname, 'FontSize', fontsize);
@@ -75,8 +81,8 @@ for amp_idx = 2
     graph_name = sprintf('MC_%s_%s_%d_%d', precoder_type, amplifiers_type{amp_idx}, M, K);
     
     if savefig == 1
-        %saveas(gcf,[root_save graph_name],'fig');
-        saveas(gcf,[root_save graph_name],'png');
-        %saveas(gcf,[root_save graph_name],'epsc2');
+        % saveas(gcf,[plot graph_name],'fig');
+        saveas(gcf,[plot graph_name],'png');
+        %saveas(gcf,[plot graph_name],'epsc2');
     end
 end

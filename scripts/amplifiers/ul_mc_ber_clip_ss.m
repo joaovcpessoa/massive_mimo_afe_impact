@@ -1,29 +1,41 @@
-% ####################################################################### %
-%% LIMPEZA
+%% CLEAR
 % ####################################################################### %
 
 clear;
 close all;
 clc;
 
-% ####################################################################### %
-%% PARÂMETROS PRINCIPAIS
+%% PATHS
 % ####################################################################### %
 
-addpath('C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\scripts\functions');
+current_dir = fileparts(mfilename('fullpath'));
 
-precoder_type = 'MF';
-amplifiers_type = {'IDEAL', 'CLIP', 'SS'};
-A0 = [0.5, 1.0, 1.5, 2.0, 2.5];                   
-N_A0 = 5;                                         
-N_AMP = 3; 
+env_file = fullfile(current_dir, '..', '..', '.env');
+env_vars = load_env(env_file);
+
+simulation = env_vars.SIMULATION_SAVE_PATH;
+functions = env_vars.FUNCTIONS_PATH;
+
+addpath(functions);
+
+%% MAIN PARAMETERS
+% ####################################################################### %
+
+decoder_type = 'ZF';
+amplifiers_type = {'IDEAL', 'CLIP'};
+% amplifiers_type = {'IDEAL', 'CLIP', 'SS', 'TWT'};
+
+A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
+
+N_A0 = length(A0);  
+N_AMP = length(amplifiers_type); 
 
 N_BLK = 1000;
 N_MC1 = 10;
 N_MC2 = 10;
 
-M = 256;
-K = 64;
+M = 64;
+K = 16;
 
 B = 4;
 M_QAM = 2^B;
@@ -42,8 +54,7 @@ lambda = c / f;
 d = lambda / 2;
 R = eye(M);
 
-% ####################################################################### %
-%% ALOCANDO MEMÓRIA
+%% MEMORY ALOCATION
 % ####################################################################### %
 
 % y = zeros(K, N_BLK, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
@@ -76,8 +87,8 @@ for mc_idx1 = 1:N_MC1
         s = qammod(bit_array, M_QAM, 'InputType', 'bit');
         Ps = vecnorm(s).^2 / N_BLK;
     
-        precoder = compute_precoder(precoder_type, H, N_SNR, snr);
-        x_normalized = normalize_precoded_signal(precoder, precoder_type, M, s, N_SNR);
+        receiver = compute_decoder(decoder_type, H, N_SNR, snr);
+        x_normalized = normalize_precoded_signal(receiver, decoder_type, M, s, N_SNR);
     
         v = sqrt(0.5) * (randn(K, N_BLK) + 1i*randn(K, N_BLK));
         Pv = vecnorm(v,2,2).^2 / N_BLK;
@@ -90,7 +101,12 @@ for mc_idx1 = 1:N_MC1
                     current_amp_type = amplifiers_type{amp_idx};
     
                     % y(:,:,snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
-                    y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
+                    if strcmp(decoder_type, 'MMSE')
+                        y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;     
+                    else
+                        y = H.' * amplifier(sqrt(snr(snr_idx)) * x_normalized, current_amp_type, a0) + v_normalized;
+                    end
+
                     bit_received = zeros(B * N_BLK, K);
     
                     for users_idx = 1:K
@@ -108,5 +124,5 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-filename = sprintf('ber_mc_mf_%d_%d.mat', M, K);
-save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type');
+filename = sprintf('ul_ber_mc_zf_clip_%s_%d_%d.mat', decoder_type, M, K);
+save(fullfile(simulation, filename), 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'decoder_type', 'amplifiers_type');
