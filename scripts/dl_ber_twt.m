@@ -126,5 +126,5 @@ for mc_idx1 = 1:N_MC1
     end
 end
 
-filename = sprintf('ber_mc_mf_%d_%d.mat', M, K);
-save(filename, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'precoder_type', 'amplifiers_type');
+file_name = sprintf('ber_mc_mf_%d_%d.mat', M, K);
+save(file_name, 'M', 'K', 'SNR', 'BER', 'N_AMP', 'precoder_type', 'amplifiers_type');
