@@ -1,23 +1,16 @@
 # Análise do Front-End analógico de sistemas Massive MIMO
 
-Este repositório apresenta exemplos em MATLAB que modelam os impactos de não linearidades de hardware em sistemas de comunicação Massive MIMO.
+Como o foco principal é avaliar o impacto dos modelos de não linearidade baseados em amplificadores operacionais  em sistemas de comunicação Massive MIMO, iremos separar em 3 cenários, cada cenário avaliando um pré-codificador específico.
+ O desempenho é avaliado em termos da BER média por usuário como uma função da SNR do downlink e uplink medido em terminais usando simulação de Monte Carlo e assumindo conhecimento completo de CSI pela estação base. 
 
-## Scripts:
+### Scripts:
 
-Cada script aborda um aspecto específico da análise:
-
-### Downlink
-
-* [dl_precoder_mf_zf.m](scripts) - Análise da BER vs. SNR utilizando modulação 16-QAM, utilizando modelagem de não linearidade baseada em 3 tipos amplificadores operacionais para os pré-codificadores Matched Filter e Zero Forcing. 
-* [dl_precoder_mmse.m](scripts) -  Análise da BER vs. SNR utilizando modulação 16-QAM, utilizando modelagem de não linearidade baseada em 3 tipos amplificadores operacionais para o pré-codificadores MMSE.
-* [dl_mc_precoder_mf_zf.m](scripts) - Análise da BER vs. SNR utilizando modulação 16-QAM, utilizando modelagem de não linearidade baseada em 3 tipos amplificadores operacionais para os pré-codificadores Matched Filter e Zero Forcing, além de utilizar Monte Carlo. 
-* [dl_mc_precoder_mmse.m](scripts) -  Análise da BER vs. SNR utilizando modulação 16-QAM, utilizando modelagem de não linearidade baseada em 3 tipos amplificadores operacionais para o pré-codificadores MMSE, além de utilizar Monte Carlo.
+* [ul_clip_ss.m](scripts) - Análise da BER vs. SNR em Uplink utilizando modulação 16-QAM e modelagem de não linearidade baseada em 2 tipos amplificadores operacionais: Corte ideal e Estado sólido. 
+* [ul_twt.m](scripts) -  Análise da BER vs. SNR em Uplink utilizando modulação 16-QAM e modelagem de não linearidade baseada no amplificador operacional de tubo de onda tunelada.
+* [dl_clip_ss.m](scripts) - Análise da BER vs. SNR em Downlink utilizando modulação 16-QAM e modelagem de não linearidade baseada em 2 tipos amplificadores operacionais: Corte ideal e Estado sólido. 
+* [dl_twt.m](scripts) -  Análise da BER vs. SNR em Downlink utilizando modulação 16-QAM e modelagem de não linearidade baseada no amplificador operacional de tubo de onda tunelada.
 * [plot_ber.m](scripts) - Exibir os gráficos para as análises de BER.
-* [plot_mc_ber.m](scripts) - Exibir os gráficos para as análises de BER que utilizam Monte Carlo.
-
-### Uplink
-
-[🚧EM CONSTRUÇÃO🚧]
+* [plot_constellation.m](scripts) - Exibir os gráficos das constelações.
 
 ### Funções
 
