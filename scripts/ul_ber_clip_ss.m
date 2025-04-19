@@ -23,9 +23,12 @@ addpath(functions);
 
 decoder_type = 'ZF';
 amplifiers_type = {'IDEAL', 'CLIP'};
-% amplifiers_type = {'IDEAL', 'CLIP', 'SS', 'TWT'};
-
 A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
+
+% Sugestão futura
+% P_dBm = [20, 25, 30, 35, 40];
+% P_Watts = 10.^(P_dBm/10) / 1000;
+% A0 = sqrt(P_Watts);
 
 N_A0 = length(A0);  
 N_AMP = length(amplifiers_type); 
