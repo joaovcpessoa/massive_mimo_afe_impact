@@ -1,4 +1,4 @@
-function [x,y] = userPositionGenerator(n_coord,R)
+function [x,y] = user_position_generator(n_coord,R)
     
     r = sqrt(3)/2*R;
     

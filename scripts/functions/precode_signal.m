@@ -1,4 +1,4 @@
-function precoder = compute_precoder(precoder_type, H, N_SNR, snr)
+function precoder = precode_signal(precoder_type, H, N_SNR, snr)
     
     [M, K] = size(H);
     

@@ -1,7 +1,10 @@
-clear;clc;close all;
+clear;
+clc;
+close all;
 
 %% PATHS
 % ####################################################################### %
+
 current_dir = fileparts(mfilename('fullpath'));
 
 env_file = fullfile(current_dir, '..', '.env');
@@ -11,6 +14,7 @@ output_dir = env_vars.SIMULATION_SAVE_PATH;
 
 %% PLOTTING PARAMETERS
 % ####################################################################### %
+
 file_name = 'amplitude_io_clip.mat';
 
 linewidth  = 3;
