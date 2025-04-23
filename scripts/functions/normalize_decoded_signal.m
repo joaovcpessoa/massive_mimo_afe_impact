@@ -1,28 +1,29 @@
-function x_normalized = normalize_decoded_signal(decoder, decoder_type, M, s, N_SNR)
+function s_normalized = normalize_decoded_signal(decoder_type, K, s, N_SNR)
+    % This function normalizes the decoded signal based on the specified decoder type.
+    % Inputs:
+    %   decoder_type: Type of decoder ('ZF', 'MF', or 'MMSE')
+    %   s: Decoded signal (K x N_BLK) for ZF/MF or (K x N_BLK x N_SNR) for MMSE
+    %   K: Number of users
+    %   N_SNR: Number of SNR values (only for MMSE)
+    %   N_BLK: Number of temporal samples (blocks)
+    % Outputs:
+    %   s_normalized: Normalized decoded signal (same size as s)
 
-    disp("Size of decoder: ");
-    disp(size(decoder));
-    disp("Size of s: ");
-    disp(size(s));
-    disp("Size of s.': ");
-    disp(size(s.'));
-    
+    N_BLK = size(s,1);
+
     switch upper(decoder_type)
         case {'ZF', 'MF'}
-            x = decoder * s.';
-            x_normalized = zeros(size(x));            
-            for m = 1:M
-                Px = norm(x(m, :))^2 / length(x(:, m));
-                x_normalized(m, :) = x(m, :) / sqrt(Px);
+            s_normalized = zeros(size(s));            
+            for k = 1:K
+                Ps = norm(s(k, :))^2 / length(s(:, k));
+                s_normalized(k, :) = s(k, :) / sqrt(Ps);
             end
         case 'MMSE'
-            x = zeros(K, N_BLK, N_SNR);
-            x_normalized = zeros(K, N_BLK, N_SNR);
+            s_normalized = zeros(K, N_BLK, N_SNR);
             for snr_idx = 1:N_SNR
-                x(:, :, snr_idx) = decoder(:, :, snr_idx) * s.';
-                for m = 1:M
-                    Px = norm(x(m, :, snr_idx))^2 / length(x(:, m, snr_idx));
-                    x_normalized(m, :, snr_idx) = x(m, :, snr_idx) / sqrt(Px);
+                for k = 1:K
+                    Ps = norm(s(k, :, snr_idx))^2 / length(y(:, k, snr_idx));
+                    s_normalized(k, :, snr_idx) = s(k, :, snr_idx) / sqrt(Ps);
                 end
             end
         otherwise

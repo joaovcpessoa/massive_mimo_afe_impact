@@ -1,22 +1,46 @@
-% ####################################################################### %
-%% LIMPEZA
+%% CLEAR
 % ####################################################################### %
 
 clear;
 close all;
 clc;
 
-% ####################################################################### %
-%% CAMINHOS
+%% PATHS
 % ####################################################################### %
 
-addpath('./functions/');
-root_save = ['C:\Users\joaov_zm1q2wh\OneDrive\Code\github\Impact-Analysis-of-Analog-Front-end-in-Massive-MIMO-Systems\images\constellation\'];
+current_dir = fileparts(mfilename('fullpath'));
+
+env_file = fullfile(current_dir, '..', '.env');
+env_vars = load_env(env_file);
+
+simulation_dir = env_vars.SIMULATION_SAVE_PATH;
+plot_dir = env_vars.PLOT_BER_PATH;
+functions_dir = env_vars.FUNCTIONS_PATH;
+
+addpath(simulation_dir);
+addpath(functions_dir);
+addpath(plot_dir);
+
+load('channel.mat', 'H');
+
 savefig = 1;
 
+%% PLOTTING PARAMETERS
 % ####################################################################### %
-%% PARÂMETROS DE PLOTAGEM
-% ####################################################################### %
+
+linewidth  = 2;
+fontname   = 'Times New Roman';
+fontsize   = 20;
+markersize = 10;
+
+colors = [0.0000 0.0000 0.0000;
+          0.0000 0.4470 0.7410;
+          0.8500 0.3250 0.0980;
+          0.9290 0.6940 0.1250;
+          0.4940 0.1840 0.5560;
+          0.4660 0.6740 0.1880;
+          0.6350 0.0780 0.1840;
+          0.3010 0.7450 0.9330];
 
 linewidth  = 2;
 fontname   = 'Times New Roman';
@@ -40,11 +64,9 @@ colors = [0.0000 0.0000 0.0000;  % Preto
           0.0000 0.5000 1.0000;  % Azul royal
           0.5000 0.0000 0.5000]; % Roxo escuro
 
-% ####################################################################### %
-%% PLOTAGEM
-% ####################################################################### %
 
-load('channel.mat', 'H');
+%% PLOT
+% ####################################################################### %
 
 precoder_type = 'MMSE';
 amplifiers_type = 'CLIP';
