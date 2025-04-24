@@ -1,18 +1,19 @@
-function decoder = decode_signal(decoder_type, H, N_SNR, snr)
+function decoder = decode_signal(decoder_type, H, snr)
 
     [M, K] = size(H);
 
     switch upper(decoder_type)
         case 'ZF'
-            decoder = (H' * conj(H)) \ H';
+            decoder = (H' * H) \ H';
         case 'MF'
-            decoder = conj(H) ./ (vecnorm(H).^2);
+            decoder = (H ./ (vecnorm(H).^2))';
         case 'MMSE'
-            decoder = zeros(K, M, N_SNR);
             HH = H' * H;
-            for snr_idx = 1:N_SNR
-                decoder(:,:,snr_idx) = inv(HH + (1/snr(snr_idx)) * eye(K)) * H';
-            end
+            decoder = inv(HH + (1/snr) * eye(K)) * H';
+            % precoder = zeros(M, K, N_SNR);
+            % for snr_idx = 1:N_SNR
+            %     precoder(:,:,snr_idx) = conj(H) / (H.' * conj(H) + 1/snr(snr_idx)*eye(K));
+            % end
         otherwise
             error('Invalid receiver type. Choose "ZF", "MF", or "MMSE".');
     end

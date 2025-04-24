@@ -1,9 +1,9 @@
 %% CLEAR
 % ####################################################################### %
 
-clear;
-close all;
-clc;
+% clear;
+% close all;
+% clc;
 
 %% PATHS
 % ####################################################################### %
@@ -22,20 +22,19 @@ addpath(functions_dir);
 %% MAIN PARAMETERS
 % ####################################################################### %
 
-precoder_type = 'MMSE';
-
+precoder_type = 'ZF';
 amplifiers_type = {'IDEAL', 'SS'};
 N_AMP = length(amplifiers_type);
 
-A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
+A0 = [0.5, 1.0, 2.0];
 N_A0 = length(A0);  
 
 N_BLK = 1000;
 N_MC1 = 10;
 N_MC2 = 10;
 
-M = 256;
-K = 64;
+M = 16;
+K = 4;
 
 B = 4;
 M_QAM = 2^B;
@@ -67,7 +66,7 @@ BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 %% TX/RX MONTE CARLO (CLIP & SS)
 % ####################################################################### %
 
-for mc_idx1 = 1:N_MC1
+parfor mc_idx1 = 1:N_MC1
 
     mc_idx1
 
@@ -85,11 +84,11 @@ for mc_idx1 = 1:N_MC1
         H = H_LOS + sqrt(1 / (1 + K_f)) * sqrtm(R) * H_NLOS;
 
         bit_array = randi([0, 1], B * N_BLK, K);
-        s = qammod(bit_array, M_QAM, 'InputType', 'bit');
-        Ps = vecnorm(s).^2 / N_BLK;
+        s = qammod(bit_array, M_QAM, 'InputType', 'bit').';
+        Ps = vecnorm(s,2,2).^2/N_BLK;
 
         precoder = precode_signal(precoder_type, H, N_SNR, snr);
-        x_normalized = normalize_precoded_signal(precoder, precoder_type, M, s, N_SNR);
+        x_normalized = normalize_precoded_signal(precoder, precoder_type, M, s, N_SNR)/sqrt(M);
 
         v = sqrt(0.5) * (randn(K, N_BLK) + 1i*randn(K, N_BLK));
         Pv = vecnorm(v,2,2).^2 / N_BLK;
@@ -102,26 +101,22 @@ for mc_idx1 = 1:N_MC1
                     current_amp_type = amplifiers_type{amp_idx};
 
                     if strcmp(precoder_type, 'MMSE')
-                        y = amplify_signal(H.' * sqrt(snr(snr_idx)) * x_normalized(:, :, snr_idx) + v_normalized, current_amp_type, a0);     
+                        y = H.' * sqrt(snr(snr_idx)) * amplify_signal(x_normalized(:, :, snr_idx), current_amp_type, a0) + v_normalized;     
                     else
-                        y = amplify_signal(H.' * sqrt(snr(snr_idx)) * x_normalized + v_normalized, current_amp_type, a0);
+                        y = H.' * sqrt(snr(snr_idx)) * amplify_signal(x_normalized, current_amp_type, a0) + v_normalized;  
                     end
 
-                    bit_received = zeros(B * N_BLK, K);
+                    s_received = y;
+                    Ps_received = vecnorm(s_received,2,2).^2/N_BLK;
+                    s_received_normalized = s_received.*sqrt(Ps./Ps_received);
 
-                    for users_idx = 1:K
-                        % s_received = y(users_idx, :, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2).';
-                        s_received = y(users_idx, :).';
-                        Ps_received = norm(s_received)^2 / N_BLK;
-                        bit_received(:, users_idx) = qamdemod(sqrt(Ps(users_idx) / Ps_received) * s_received, M_QAM, 'OutputType', 'bit');
-                        [~, bit_error] = biterr(bit_received(:, users_idx), bit_array(:, users_idx));
-                        BER(users_idx, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2) = bit_error;
-                    end
+                    bit_received = qamdemod(s_received_normalized.', M_QAM, 'OutputType', 'bit');
+                    [~, BER(:, snr_idx, amp_idx, a_idx, mc_idx1, mc_idx2)] = biterr(bit_received', bit_array');
                 end
             end
         end
     end
 end
 
-file_name = sprintf('dl_ber_%s_%s_%d_%d.mat', lower(precoder_type), lower(amplifiers_type{2}), M, K);
+file_name = ['dl_ber_' lower(precoder_type) '_' lower(amplifiers_type{2}) '_' num2str(M) '_' num2str(K) '.mat'];
 save(fullfile(simulation_dir, file_name), 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'precoder_type', 'amplifiers_type');

@@ -1,9 +1,9 @@
 %% CLEAR
 % ####################################################################### %
 
-clear;
-close all;
-clc;
+% clear;
+% close all;
+% clc;
 
 %% PATHS
 % ####################################################################### %
@@ -21,7 +21,7 @@ addpath(simulation_dir);
 addpath(functions_dir);
 addpath(plot_dir);
 
-load('ul_ber_mf_ss_16_4.mat');
+load('dl_ber_zf_ss_16_4.mat');
 
 savefig = 1;
 
@@ -67,18 +67,18 @@ for amp_idx = 2
     %title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
 
     legend_text = {'Ideal', '$A = 0.5$', '$A = 1.0$', '$A = 1.5$', '$A = 2.0$', '$A = 2.5$'};
-    legend(legend_text , 'Location', 'southwest', 'FontSize', fontsize, 'fontname', fontname, 'Interpreter','latex');
+    legend(legend_text , 'Location', 'southeast', 'FontSize', fontsize, 'fontname', fontname, 'Interpreter','latex');
 
     %legend(arrayfun(@(a) sprintf('A=%.1f', a), A0, 'UniformOutput', false), 'Location', 'northwest', 'FontSize', fontsize);
     legend box off;
 
     set(gca, 'FontName', fontname, 'FontSize', fontsize);
 
-    graph_name = sprintf('ber_%s_%s_%d_%d', lower(precoder_type), lower(amplifiers_type{amp_idx}), M, K);
+    graph_name = sprintf('ber_%s_%s_%d_%d_64QAM', lower(precoder_type), lower(amplifiers_type{amp_idx}), M, K);
 
     if savefig == 1
         % saveas(gcf,[plot_dir graph_name],'fig');
-        saveas(gcf,[plot_dir graph_name],'png');
-        %saveas(gcf,[plot_dir graph_name],'epsc2');
+        % saveas(gcf,[plot_dir graph_name],'png');
+        saveas(gcf,[plot_dir graph_name],'epsc2');
     end
 end
