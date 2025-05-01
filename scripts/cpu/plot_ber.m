@@ -10,18 +10,18 @@
 
 current_dir = fileparts(mfilename('fullpath'));
 
-env_file = fullfile(current_dir, '..', '.env');
+env_file = fullfile(current_dir, '..', '..', '.env');
 env_vars = load_env(env_file);
 
-simulation_dir = env_vars.SIMULATION_SAVE_PATH;
-plot_dir = env_vars.PLOT_BER_PATH;
-functions_dir = env_vars.FUNCTIONS_PATH;
+simulation_dir = env_vars.CPU_SIMULATION_SAVE_PATH;
+plot_dir = env_vars.CPU_PLOT_BER_PATH;
+functions_dir = env_vars.CPU_FUNCTIONS_PATH;
 
 addpath(simulation_dir);
 addpath(functions_dir);
 addpath(plot_dir);
 
-load('dl_ber_zf_ss_16_4.mat');
+load('ul_ber_zf_ss_256_64.mat');
 
 savefig = 1;
 
@@ -66,7 +66,7 @@ for amp_idx = 2
     ylabel('BER', 'FontName', fontname, 'FontSize', fontsize);
     %title(sprintf('Amplificador: %s', amplifiers_type{amp_idx}), 'FontName', fontname, 'FontSize', fontsize);
 
-    legend_text = {'Ideal', '$A = 0.5$', '$A = 1.0$', '$A = 1.5$', '$A = 2.0$', '$A = 2.5$'};
+    legend_text = {'Ideal', '$A = 0.5$', '$A = 1.0$', '$A = 2.0$'};
     legend(legend_text , 'Location', 'southeast', 'FontSize', fontsize, 'fontname', fontname, 'Interpreter','latex');
 
     %legend(arrayfun(@(a) sprintf('A=%.1f', a), A0, 'UniformOutput', false), 'Location', 'northwest', 'FontSize', fontsize);

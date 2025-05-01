@@ -1,20 +1,20 @@
 %% CLEAR
 % ####################################################################### %
 
-clear;
-close all;
-clc;
+% clear;
+% close all;
+% clc;
 
 %% PATHS
 % ####################################################################### %
 
 current_dir = fileparts(mfilename('fullpath'));
 
-env_file = fullfile(current_dir, '..', '.env');
+env_file = fullfile(current_dir, '..', '..', '.env');
 env_vars = load_env(env_file);
 
-simulation_dir = env_vars.SIMULATION_SAVE_PATH;
-functions_dir = env_vars.FUNCTIONS_PATH;
+simulation_dir = env_vars.CPU_SIMULATION_SAVE_PATH;
+functions_dir = env_vars.CPU_FUNCTIONS_PATH;
 
 addpath(simulation_dir);
 addpath(functions_dir);
@@ -22,13 +22,12 @@ addpath(functions_dir);
 %% MAIN PARAMETERS
 % ####################################################################### %
 
-decoder_type = 'MMSE';
+%decoder_type = 'ZF';
 
 amplifiers_type = {'IDEAL', 'SS'};
 N_AMP = length(amplifiers_type);
 
 A0 = [0.5, 1.0, 2.0];
-% A0 = [0.5, 1.0, 1.5, 2.0, 2.5];
 N_A0 = length(A0);
 
 N_BLK = 1000;
@@ -36,12 +35,12 @@ N_MC1 = 10;
 N_MC2 = 10;
 
 M = 256;
-K = 256;
+%K = 64;
 
 B = 7;
 M_QAM = 2^B;
 
-SNR = -10:1:30;
+SNR = -10:5:30;
 N_SNR = length(SNR);
 snr = 10.^(SNR/10);                                      
 
@@ -67,7 +66,6 @@ BER = zeros(K, N_SNR, N_AMP, N_A0, N_MC1, N_MC2);
 %% SIMULAÇÃO DE MONTE CARLO
 % ####################################################################### %
 
-% for mc_idx1 = 1:N_MC1
 for mc_idx1 = 1:N_MC1
 
     mc_idx1
@@ -97,15 +95,13 @@ for mc_idx1 = 1:N_MC1
         Pv = vecnorm(v,2,2).^2 / N_BLK; %  64 1000
         v_normalized = v./sqrt(Pv);   %  64 1000
     
-        parfor snr_idx = 1:N_SNR
+        for snr_idx = 1:N_SNR
             for a_idx = 1:N_A0
                 for amp_idx = 1:N_AMP
 
                     a0 = A0(a_idx);
                     current_amp_type = amplifiers_type{amp_idx};
                     
-                    % y = H * sqrt(snr(snr_idx)) * s_normalized + v_normalized; % IDEAL
-                        
                     y = H * sqrt(snr(snr_idx)) * amplify_signal(s_normalized, current_amp_type, a0) + v_normalized;
 
                     decoder = decode_signal(decoder_type, H, snr(snr_idx));
@@ -120,16 +116,6 @@ for mc_idx1 = 1:N_MC1
         end
     end
 end
-
-% scatterplot(s(:));  % Usando o vetor 's' que contém o sinal modulado
-% title('Constelação do Sinal Modulado');
-% xlabel('Parte Real');
-% ylabel('Parte Imaginária');
-% 
-% scatterplot(s_hat(:));  % Usando o vetor 's_hat' que contém o sinal decodificado
-% title('Constelação do Sinal Decodificado');
-% xlabel('Parte Real');
-% ylabel('Parte Imaginária');
 
 file_name = ['ul_ber_' lower(decoder_type) '_' lower(amplifiers_type{2}) '_' num2str(M) '_' num2str(K) '.mat'];
 save(fullfile(simulation_dir, file_name), 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0', 'A0', 'decoder_type', 'amplifiers_type');

@@ -324,6 +324,11 @@ save(fullfile(simulation_dir, file_name), 'M', 'K', 'SNR', 'BER', 'N_AMP', 'N_A0
 % Cria um nome como dl_ber_mf_twt_64_16.mat.
 % Salva variáveis relevantes no diretório simulation_dir.
 ```
+### Observações importantes
+
+Quando o número de bits é ímpar, a constelação  não é quadrada, o que torna o mapeamento e demapeamento mais custosos, pois o mapeamento qammod gera uma constelação que não tem tanta simetria, levando a mais cálculos internos e a demodulação qamdemod também precisa trabalhar com regiões de decisão mais complexas, o que pode aumentar o tempo de execução.
+
+Modulações com número de bits par geralmente resultam em constelações simétricas, o que facilita otimizações vetoriais e uso de LUTs (Look-Up Tables) nos algoritmos internos do MATLAB. Operações vetoriais são altamente otimizadas em MATLAB, mas quando a estrutura dos dados não segue padrões quadrados, a vetorização pode ser menos eficiente. Isso gera mais loops internos ou chamadas de função mais custosas.
 
 ### Referências
 
